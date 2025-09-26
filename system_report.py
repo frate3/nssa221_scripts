@@ -1,7 +1,4 @@
 # add shabang later
-#switch hostname back to hostname -f 
-#Uncomment domainname
-# add correct filters to ip address and netmaks
 
 import subprocess, os, platform, re
 
@@ -10,8 +7,7 @@ import subprocess, os, platform, re
 def device_information():
     print(f"\033[92mDevice Information\n\033[00m")
     #Hostname
-    # hostname = subprocess.run("hostname -f",capture_output=True,shell=True).stdout.strip().decode()
-    hostname = subprocess.run("hostname",capture_output=True,shell=True).stdout.strip().decode()
+    hostname = subprocess.run("hostname -f",capture_output=True,shell=True).stdout.strip().decode()
     print(f"Hostname: \t\t\t{hostname}")
     #Domain
     domain_name = subprocess.run("domainname",capture_output=True,shell=True).stdout.strip().decode()
@@ -32,25 +28,31 @@ def network_information():
     #DNS 1&2
     dns = subprocess.run("cat /etc/resolv.conf",capture_output=True,shell=True).stdout.strip().decode()
     ips = re.findall(r"nameserver\s+(\d{1,3}(?:\.\d{1,3}){3})", dns)
-    print(f"DNS1: \t\t\t{ips[0]}")
-    print(f"DNS2: \t\t\t{ips[1]}")
+    print(f"DNS1: \t\t\t\t{ips[0]}")
+    print(f"DNS2: \t\t\t\t{ips[1]}")
 
 def os_information():
     # OS
-
+    os_info = subprocess.run("cat /etc/os-release",capture_output=True,shell=True).stdout.strip().decode()
+    os_name = re.search(r'^PRETTY_NAME="([^"]+)"', os_info)
+    print(f"Operating System: \t\t\t{os_name.group(1)}")
     # OS Version
-
+    os_version = re.search(r'^VERSION="([^"]+)"', os_info)
+    print(f"Operating System: \t\t\t{os_version.group(1)[:4]}")
     # Kernal Version
-
-    pass
+    kernal = subprocess.run("uname -r",capture_output=True,shell=True).stdout.strip().decode()
+    print(f"Kernal Version: \t\t\t{kernal}")
 
 def storage_info():
     # System Drive Total:
-
+    info = subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout
+    match = re.search(r"^/dev/sda1\s+(\S+)\s+(\S+)\s+(\S+)", info, re.MULTILINE)
+    size, used, avail = match.groups()
+    print(f"Size: \t\t\t{size}")
     # System Drive Used:
-
+    print(f"Used: \t\t\t{used}")
     # System Drive Free:
-
+    print(f"Avail: \t\t\t{avail}")
     pass
 
 def processor_info():
@@ -71,8 +73,9 @@ def memory_info():
 
 def main():
     # print("Hello")
-    device_information()
-    network_information()
+    # device_information()
+    # network_information()
+    processor_info()
 
 os.system('clear')
 main()
